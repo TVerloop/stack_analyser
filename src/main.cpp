@@ -14,6 +14,7 @@
 //std includes
 #include <iostream> //std::cout
 #include <fstream> // std::ofstream
+#include <chrono>
 const std::string program_description =
 		"this app can calculate the maximum stack depth for each function of your embedded programs using the .su files and .000i.cgraph files \n\n"
 
@@ -23,6 +24,7 @@ const std::string program_description =
 
 int main(int argc, char ** argv)
 {
+	auto start = std::chrono::system_clock::now();
 	std::vector<std::string> input_folders =
 	{ };
 	std::string output = "";
@@ -87,5 +89,10 @@ int main(int argc, char ** argv)
 		std::cout << "last moment exception caught :" << ex.what() << std::endl;
 		return 1;
 	}
+	auto end = std::chrono::system_clock::now();
+	auto elapsed =
+	    std::chrono::duration_cast<std::chrono::seconds>(end - start);
+	std::cout << '\n';
+	std::cout << "elapsed time: "<< elapsed.count() << " seconds" << '\n';
 	return 0;
 }

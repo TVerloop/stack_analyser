@@ -31,10 +31,6 @@ cgraph_file::cgraph_file(const std::string & file_name) :
 	get_optimized_symbol_table(file_content, raw_data);
 }
 
-cgraph_file::~cgraph_file()
-{
-	// TODO Auto-generated destructor stub
-}
 
 void cgraph_file::get_optimized_symbol_table(
 		const std::vector<std::string> & input, std::vector<std::string> & output)

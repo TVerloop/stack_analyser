@@ -69,8 +69,3 @@ usage_type su_node::string_to_usage_type_enum(const std::string & ut)
 		return usage_type::undefined;
 }
 
-su_node::~su_node()
-{
-	// TODO Auto-generated destructor stub
-}
-

@@ -410,8 +410,4 @@ void stack_analyser::print_unresolved()
 	}
 }
 
-stack_analyser::~stack_analyser()
-{
-
-}
 

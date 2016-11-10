@@ -26,11 +26,6 @@ cgraph_node::cgraph_node(const std::vector<std::string> & raw_node_data) : filen
 	}
 }
 
-cgraph_node::~cgraph_node()
-{
-	// TODO Auto-generated destructor stub
-}
-
 std::string cgraph_node::symbol_type_enum_to_string(const symbol_type & st)
 {
 	switch (st)

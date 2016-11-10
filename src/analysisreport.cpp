@@ -15,12 +15,6 @@ is_recursive{false}
 
 }
 
-analysis_report::~analysis_report()
-{
-	// TODO Auto-generated destructor stub
-}
-
-
 void analysis_report::add_function(int function,int call_cost)
 {
 	if(functions.size() != 0)
