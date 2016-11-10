@@ -2,7 +2,7 @@
 # Automatically-generated file. Do not edit!
 ################################################################################
 
-USER_OBJS :=
+# Add inputs and outputs from these tool invocations to the build variables 
 
-LIBS := -lboost_filesystem -lboost_graph -lboost_program_options -lboost_regex -lboost_system
+# Each subdirectory must supply rules for building sources it contributes
 

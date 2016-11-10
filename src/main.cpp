@@ -5,60 +5,87 @@
  *      Author: Tom
  */
 
-#include <boost/program_options.hpp> //boost::program_options::options_description
-#include <iostream> //std::cout
+//local includes
 #include <stackanalyser.hpp>
+
+//boost includes
+#include <boost/program_options.hpp> //boost::program_options::options_description
+
+//std includes
+#include <iostream> //std::cout
+#include <fstream> // std::ofstream
 const std::string program_description =
-    "this app can calculate the maximum stack depth for each function of your embedded programs using the .su files and .000i.cgraph files \n\n"
+		"this app can calculate the maximum stack depth for each function of your embedded programs using the .su files and .000i.cgraph files \n\n"
 
-    "USAGE: stack_analyser_v2 [-h] [-o ARG] -i ARG\n\n"
+				"USAGE: stack_analyser_v2 [-h] [-o ARG] -i ARG\n\n"
 
-    "-- Option Descriptions --\n";
+				"-- Option Descriptions --\n";
 
 int main(int argc, char ** argv)
 {
-  std::vector<std::string> input_folders = {};
-  try
-  {
-    boost::program_options::options_description desc("Options");
-    desc.add_options()("help,h", "Print help messages")("input,i",
-        boost::program_options::value<std::vector<std::string> >(&input_folders)->required(), "specify input directories")(
-        "output,o", boost::program_options::value<std::string>(),
-        "specify output file (stdout if not specified)");
+	std::vector<std::string> input_folders =
+	{ };
+	std::string output = "";
+	std::string call_graph_output = "";
+	try
+	{
+		boost::program_options::options_description desc("Options");
+		desc.add_options()("help,h", "Print help messages")("input,i",
+				boost::program_options::value<std::vector<std::string> >(&input_folders)->required(),
+				"specify input directories")("output,o",
+				boost::program_options::value<std::string>(&output),
+				"specify output file (stdout if not specified)")
+				("callgraph,c",
+						boost::program_options::value<std::string>(&call_graph_output),
+						"prints callgraph in dot file");
 
-    boost::program_options::variables_map vm;
-    try
-    {
-      boost::program_options::store(
-          boost::program_options::parse_command_line(argc, argv, desc), vm);
+		boost::program_options::variables_map vm;
+		try
+		{
+			boost::program_options::store(
+					boost::program_options::parse_command_line(argc, argv, desc), vm);
 
-      if (vm.count("help"))
-      {
-        std::cout << program_description << std::endl << desc << std::endl;
-        return 0;
-      }
+			if (vm.count("help"))
+			{
+				std::cout << program_description << std::endl << desc << std::endl;
+				return 0;
+			}
 
-      boost::program_options::notify(vm);
-    } catch (boost::program_options::error& e)
-    {
-      std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
-      std::cerr << desc << std::endl;
-      return 1;
-    }
+			boost::program_options::notify(vm);
+		} catch (boost::program_options::error& e)
+		{
+			std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
+			std::cerr << desc << std::endl;
+			return 1;
+		}
+		//-------------------------------------------------------------------------
 
-    //-------------------------------------------------------------------------
+		stack_analyser * analyser = new stack_analyser(input_folders);
+		if(call_graph_output.size() != 0)
+		{
+			if(call_graph_output.length() > 4 &&call_graph_output.substr(call_graph_output.length() - 5).compare(".dot") == 0)
+			{
+				call_graph_output += ".dot";
+			}
+			std::ofstream stream;
+			stream.open(call_graph_output);
+			if(!stream.is_open())
+			{
+				std::cerr << "could not write file " <<  call_graph_output;
+			}
+			analyser->print_callgraph_dot(stream);
+			stream.close();
+		}
+		analyser->print_analysis(std::cout);
+		delete analyser;
+		analyser = nullptr;
 
-    stack_analyser * analyser = new stack_analyser(input_folders);
-    analyser->print_analysis(std::cout);
-    delete analyser;
-    analyser = nullptr;
+		//-------------------------------------------------------------------------
 
-    //-------------------------------------------------------------------------
-
-  } catch (std::exception & ex)
-  {
-    std::cout << "last moment exception caught :" << ex.what() << std::endl;
-    return 1;
-  }
-  return 0;
+	} catch (std::exception & ex)
+	{
+		std::cout << "last moment exception caught :" << ex.what() << std::endl;
+		return 1;
+	}
+	return 0;
 }

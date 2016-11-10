@@ -1,0 +1,455 @@
+graph callgraph {
+A [label="system_LPC11Uxx.c
+FLASH_SetFLASHAccess.constprop
+0"];
+B [label="system_LPC11Uxx.c
+SystemInit
+32"];
+C [label="system_LPC11Uxx.c
+FLASH_SetFLASHAccess
+0"];
+D [label="system_LPC11Uxx.c
+SYSCTL_PowerUp
+8"];
+E [label="system_LPC11Uxx.c
+SYSCTL_PowerDown
+0"];
+F [label="system_LPC11Uxx.c
+SystemCoreClockUpdate
+16"];
+G [label="DAP.c
+DAP_SWD_Configure.isra.7
+0"];
+H [label="DAP.c
+DAP_Connect.isra.6
+0"];
+I [label="DAP.c
+DAP_LED.isra.5
+0"];
+J [label="DAP.c
+JTAG_WriteAbort
+20"];
+K [label="DAP.c
+JTAG_Transfer
+48"];
+L [label="DAP.c
+SWD_Transfer
+48"];
+M [label="DAP.c
+JTAG_ReadIDCode
+16"];
+N [label="DAP.c
+JTAG_IR
+28"];
+O [label="DAP.c
+JTAG_Sequence
+40"];
+P [label="DAP.c
+SWJ_Sequence
+20"];
+Q [label="DAP.c
+memcpy
+0"];
+R [label="DAP.c
+DAP_Setup
+0"];
+S [label="DAP.c
+DAP_ProcessCommand
+128"];
+T [label="DAP.c
+DAP_ProcessVendorCommand
+0"];
+U [label="DAP.c
+DAP_JTAG_TransferBlock
+48"];
+V [label="DAP.c
+DAP_SWD_TransferBlock
+48"];
+W [label="DAP.c
+DAP_JTAG_Transfer
+48"];
+X [label="DAP.c
+DAP_SWD_Transfer
+48"];
+Y [label="DAP.c
+DAP_TransferConfigure
+0"];
+Z [label="DAP.c
+DAP_JTAG_Abort
+20"];
+ZB [label="DAP.c
+DAP_JTAG_IDCode
+16"];
+ZC [label="DAP.c
+DAP_JTAG_Configure
+0"];
+ZD [label="DAP.c
+DAP_JTAG_Sequence
+40"];
+ZE [label="DAP.c
+DAP_SWD_Abort
+48"];
+ZF [label="DAP.c
+DAP_SWJ_Sequence
+20"];
+ZG [label="DAP.c
+DAP_SWJ_Clock
+0"];
+ZH [label="DAP.c
+DAP_SWJ_Pins
+0"];
+ZI [label="DAP.c
+Delayms
+0"];
+ZJ [label="DAP.c
+TIMER_EXPIRED
+0"];
+ZK [label="DAP.c
+TIMER_START
+0"];
+ZL [label="DAP.c
+DAP_Info
+0"];
+ZM [label="DAP.c
+DAP_SETUP
+0"];
+ZN [label="DAP.c
+PORT_OFF
+0"];
+ZO [label="DAP.c
+PORT_SWD_SETUP
+0"];
+ZP [label="
+PORT_JTAG_SETUP
+0"];
+ZQ [label="cr_startup_lpc11uxx.c
+main
+232"];
+ZR [label="cr_startup_lpc11uxx.c
+SystemInit
+32"];
+ZS [label="cr_startup_lpc11uxx.c
+_vStackTop
+0"];
+ZT [label="cr_startup_lpc11uxx.c
+IntDefaultHandler
+0"];
+ZU [label="cr_startup_lpc11uxx.c
+SysTick_Handler
+0"];
+ZV [label="cr_startup_lpc11uxx.c
+PendSV_Handler
+0"];
+ZW [label="cr_startup_lpc11uxx.c
+SVC_Handler
+0"];
+ZX [label="cr_startup_lpc11uxx.c
+HardFault_Handler
+0"];
+ZY [label="cr_startup_lpc11uxx.c
+NMI_Handler
+0"];
+ZZ [label="cr_startup_lpc11uxx.c
+ResetISR
+240"];
+ZZB [label="cr_startup_lpc11uxx.c
+bss_init
+0"];
+ZZC [label="cr_startup_lpc11uxx.c
+data_init
+8"];
+ZZD [label="cr_startup_lpc11uxx.c
+USBWakeup_IRQHandler
+0"];
+ZZE [label="cr_startup_lpc11uxx.c
+FMC_IRQHandler
+0"];
+ZZF [label="cr_startup_lpc11uxx.c
+BOD_IRQHandler
+0"];
+ZZG [label="cr_startup_lpc11uxx.c
+WDT_IRQHandler
+0"];
+ZZH [label="cr_startup_lpc11uxx.c
+ADC_IRQHandler
+0"];
+ZZI [label="cr_startup_lpc11uxx.c
+USB_FIQHandler
+0"];
+ZZJ [label="cr_startup_lpc11uxx.c
+USB_IRQHandler
+8"];
+ZZK [label="cr_startup_lpc11uxx.c
+UART_IRQHandler
+0"];
+ZZL [label="cr_startup_lpc11uxx.c
+SSP0_IRQHandler
+0"];
+ZZM [label="cr_startup_lpc11uxx.c
+TIMER32_1_IRQHandler
+0"];
+ZZN [label="cr_startup_lpc11uxx.c
+TIMER32_0_IRQHandler
+0"];
+ZZO [label="cr_startup_lpc11uxx.c
+TIMER16_1_IRQHandler
+0"];
+ZZP [label="cr_startup_lpc11uxx.c
+TIMER16_0_IRQHandler
+0"];
+ZZQ [label="cr_startup_lpc11uxx.c
+I2C_IRQHandler
+0"];
+ZZR [label="cr_startup_lpc11uxx.c
+SSP1_IRQHandler
+0"];
+ZZS [label="cr_startup_lpc11uxx.c
+GINT1_IRQHandler
+0"];
+ZZT [label="cr_startup_lpc11uxx.c
+GINT0_IRQHandler
+0"];
+ZZU [label="cr_startup_lpc11uxx.c
+FLEX_INT7_IRQHandler
+0"];
+ZZV [label="cr_startup_lpc11uxx.c
+FLEX_INT6_IRQHandler
+0"];
+ZZW [label="cr_startup_lpc11uxx.c
+FLEX_INT5_IRQHandler
+0"];
+ZZX [label="cr_startup_lpc11uxx.c
+FLEX_INT4_IRQHandler
+0"];
+ZZY [label="cr_startup_lpc11uxx.c
+FLEX_INT3_IRQHandler
+0"];
+ZZZ [label="cr_startup_lpc11uxx.c
+FLEX_INT2_IRQHandler
+0"];
+ZZZB [label="cr_startup_lpc11uxx.c
+FLEX_INT1_IRQHandler
+0"];
+ZZZC [label="
+FLEX_INT0_IRQHandler
+0"];
+ZZZD [label="usb_driver.c
+NVIC_EnableIRQ.constprop
+0"];
+ZZZE [label="usb_driver.c
+NVIC_DisableIRQ.constprop
+0"];
+ZZZF [label="usb_driver.c
+memset
+0"];
+ZZZG [label="usb_driver.c
+disconnect_to_usb_bus
+8"];
+ZZZH [label="usb_driver.c
+connect_to_usb_bus
+8"];
+ZZZI [label="usb_driver.c
+init_usb_hid
+96"];
+ZZZJ [label="usb_driver.c
+init_usb_driver
+40"];
+ZZZK [label="usb_driver.c
+USB_IRQHandler
+8"];
+ZZZL [label="usb_driver.c
+init_usb_power
+0"];
+ZZZM [label="usb_driver.c
+init_usb_clock
+0"];
+ZZZN [label="usb_driver.c
+find_IntfDesc
+0"];
+ZZZO [label="usb_driver.c
+NVIC_DisableIRQ
+0"];
+ZZZP [label="
+NVIC_EnableIRQ
+0"];
+ZZZQ [label="IBDAP.c
+NVIC_SetPriority.constprop
+0"];
+ZZZR [label="IBDAP.c
+DAP_EpInOut_Hdlr_Callback.part.2
+0"];
+ZZZS [label="IBDAP.c
+DAP_ProcessCommand
+128"];
+ZZZT [label="IBDAP.c
+connect_to_usb_bus
+8"];
+ZZZU [label="IBDAP.c
+init_usb_hid
+96"];
+ZZZV [label="IBDAP.c
+init_usb_driver
+40"];
+ZZZW [label="IBDAP.c
+init_usb_power
+0"];
+ZZZX [label="IBDAP.c
+init_usb_clock
+0"];
+ZZZY [label="IBDAP.c
+DAP_Setup
+0"];
+ZZZZ [label="IBDAP.c
+main
+232"];
+ZZZZB [label="IBDAP.c
+device_boot
+0"];
+ZZZZC [label="IBDAP.c
+indicator_code
+8"];
+ZZZZD [label="IBDAP.c
+error_code
+8"];
+ZZZZE [label="IBDAP.c
+suspend
+16"];
+ZZZZF [label="IBDAP.c
+DAP_EpInOut_Hdlr_Callback
+16"];
+ZZZZG [label="IBDAP.c
+DAP_SetReport_Callback
+0"];
+ZZZZH [label="IBDAP.c
+DAP_GetReport_Callback
+0"];
+ZZZZI [label="IBDAP.c
+sleep_ms
+0"];
+ZZZZJ [label="IBDAP.c
+SysTick_Handler
+0"];
+ZZZZK [label="IBDAP.c
+LED_ERROR_OFF
+0"];
+ZZZZL [label="IBDAP.c
+LED_ERROR_ON
+0"];
+ZZZZM [label="IBDAP.c
+init_error_led
+0"];
+ZZZZN [label="IBDAP.c
+SysTick_Config
+0"];
+ZZZZO [label="
+NVIC_SetPriority
+0"];
+ZZZZP [label="JTAG_DP.c
+JTAG_Transfer
+48"];
+ZZZZQ [label="JTAG_DP.c
+JTAG_IR
+28"];
+ZZZZR [label="JTAG_DP.c
+JTAG_WriteAbort
+20"];
+ZZZZS [label="JTAG_DP.c
+JTAG_ReadIDCode
+16"];
+ZZZZT [label="JTAG_DP.c
+JTAG_TransferSlow
+40"];
+ZZZZU [label="JTAG_DP.c
+JTAG_IR_Slow
+20"];
+ZZZZV [label="JTAG_DP.c
+JTAG_TransferFast
+40"];
+ZZZZW [label="JTAG_DP.c
+JTAG_IR_Fast
+20"];
+ZZZZX [label="
+JTAG_Sequence
+40"];
+ZZZZY [label="SW_DP.c
+SWD_Transfer
+48"];
+ZZZZZ [label="SW_DP.c
+SWD_TransferSlow
+40"];
+ZZZZZB [label="SW_DP.c
+SWD_TransferFast
+40"];
+ZZZZZC [label="
+SWJ_Sequence
+20"];
+ZZZZZD [label="
+init_uart
+0"];
+J -- ZZZZR [style=dotted][label="D"];
+K -- ZZZZP [style=dotted][label="D"];
+L -- ZZZZY [style=dotted][label="D"];
+M -- ZZZZS [style=dotted][label="D"];
+N -- ZZZZQ [style=dotted][label="D"];
+O -- ZZZZX [style=dotted][label="D"];
+P -- ZZZZZC [style=dotted][label="D"];
+ZQ -- ZZZZ [style=dotted][label="D"];
+ZR -- B [style=dotted][label="D"];
+ZZZS -- S [style=dotted][label="D"];
+ZZZT -- ZZZH [style=dotted][label="D"];
+ZZZU -- ZZZI [style=dotted][label="D"];
+ZZZV -- ZZZJ [style=dotted][label="D"];
+ZZZW -- ZZZL [style=dotted][label="D"];
+ZZZX -- ZZZM [style=dotted][label="D"];
+ZZZY -- R [style=dotted][label="D"];
+B -- D;
+H -- ZP [style=dotted][label="I"];
+H -- ZO [style=dotted][label="I"];
+R -- ZM [style=dotted][label="I"];
+S -- Z [style=dotted][label="I"];
+S -- ZE [style=dotted][label="I"];
+S -- U [style=dotted][label="I"];
+S -- V [style=dotted][label="I"];
+S -- W [style=dotted][label="I"];
+S -- X [style=dotted][label="I"];
+S -- Y [style=dotted][label="I"];
+S -- ZB [style=dotted][label="I"];
+S -- ZC [style=dotted][label="I"];
+S -- ZD [style=dotted][label="I"];
+S -- G [style=dotted][label="I"];
+S -- ZF [style=dotted][label="I"];
+S -- ZG [style=dotted][label="I"];
+S -- ZH [style=dotted][label="I"];
+S -- ZN [style=dotted][label="I"];
+S -- H [style=dotted][label="I"];
+S -- I [style=dotted][label="I"];
+S -- ZL [style=dotted][label="I"];
+S -- T;
+U -- K;
+V -- L;
+W -- K;
+X -- L;
+Z -- J;
+ZB -- M;
+ZD -- O;
+ZE -- L;
+ZF -- P;
+ZH -- ZJ [style=dotted][label="I"];
+ZH -- ZK [style=dotted][label="I"];
+ZL -- Q;
+ZZ -- ZQ;
+ZZZG -- ZZZE [style=dotted][label="I"];
+ZZZH -- ZZZD [style=dotted][label="I"];
+ZZZI -- ZZZF;
+ZZZJ -- ZZZF;
+ZZZZ -- ZZZS;
+ZZZZC -- ZZZZI;
+ZZZZD -- ZZZZI;
+ZZZZE -- ZZZZI;
+ZZZZF -- ZZZR [style=dotted][label="I"];
+ZZZZN -- ZZZQ [style=dotted][label="I"];
+ZZZZP -- ZZZZT;
+ZZZZQ -- ZZZZU;
+ZZZZY -- ZZZZZ;
+
+}
