@@ -78,8 +78,7 @@ void cgraph_file::get_graph_nodes(std::vector<cgraph_node> & nodes)
 		if (str.size() > 2 && (str.substr(0, 2).compare("  ") != 0))
 		{
 			cgraph_node n(raw_node_data);
-			boost::filesystem::path p(file_name);
-			n.filename = p.filename().string().substr(0,(p.filename().string().size() - 12));
+			n.filename = file_name.substr(0,(file_name.size() - 12));
 			nodes.push_back(n);
 			raw_node_data.clear();
 		}

@@ -101,12 +101,20 @@ public:
 	std::string filename; /**< contains the filename in which the symbol exsists */
 	std::string name; /**< contains the symbol name */
 	std::string mangled_name; /**< contains the mangled name */
+	int symbol_nr;
+	int indirect_calls;
 	std::vector<symbol_type> type; /**< contains all types that this symbol contains */
 	availability_type availability; /**< contains the availability that this symbol contains */
 	std::vector<flag_type> flags; /**< contains all flags that this symbol contains */
 	std::vector<std::pair<std::string, bool>> calls; /**< contains all calls that this symbol contains */
 	std::vector<std::string> raw_data; /**< contains the raw data of the symbol */
+	su_node * su;
 
+	std::string get_filename();
+
+	int get_linenr();
+
+	int get_charnr();
 
 	/**
 	 *
@@ -169,6 +177,7 @@ public:
 	const static std::string availability_regex;/**< contains the regex to extract the availability */
 	const static std::string flags_regex;/**< contains the regex to extract the flags */
 	const static std::string calls_regex;/**< contains the regex to extract the calls */
+	const static std::string indirect_regex;/**< contains the regex to extract the inderect calls count */
 
 private:
 
@@ -225,6 +234,8 @@ private:
    *
 	 */
 	void parse_calls_line(const std::string & line);
+
+	void parse_indirect_line(const std::string & line);
 
 };
 

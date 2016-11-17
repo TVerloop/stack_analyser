@@ -15,10 +15,20 @@
 #include <stdlib.h>
 
 const std::string su_node::usage_regex =
-		"(\\S+):[0-9]+:[0-9]+:(.+)\\t([0-9]+)\\t(\\S+)";
+		"(\\S+):([0-9]+):([0-9]+):(.+)\\t([0-9]+)\\t(\\S+)";
+su_node::su_node() :
+		line_nr
+		{ 0 }, char_nr
+		{ 0 }, usage
+		{ 0 }, su_type
+		{ usage_type::undefined }
+{
 
+}
 su_node::su_node(const std::string & line) :
-		usage
+		line_nr
+		{ 0 }, char_nr
+		{ 0 }, usage
 		{ 0 }, su_type
 		{ usage_type::undefined }
 {
@@ -30,15 +40,17 @@ su_node::su_node(const std::string & line) :
 	if (regex_search(begin, end, what, expr))
 	{
 		file_name = what[1];
-		name = what[2];
-		usage = atoi(what[3].str().c_str());
-		if (what[4].compare("static") == 0)
+		line_nr = atoi(what[2].str().c_str());
+		char_nr = atoi(what[3].str().c_str());
+		name = what[4];
+		usage = atoi(what[5].str().c_str());
+		if (what[6].compare("static") == 0)
 			su_type = usage_type::static_usage;
-		else if (what[4].compare("dynamic") == 0)
+		else if (what[6].compare("dynamic") == 0)
 			su_type = usage_type::dynamic_usage;
-		else if (what[4].compare("bounded") == 0)
+		else if (what[6].compare("bounded") == 0)
 			su_type = usage_type::dynamic_bounded_usage;
-		begin = what[0].second;
+		begin = what[6].second;
 	}
 }
 

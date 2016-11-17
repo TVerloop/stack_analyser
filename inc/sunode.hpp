@@ -39,11 +39,14 @@ enum class usage_type
 class su_node
 {
 public:
+	su_node();
 	su_node(const std::string & line);
 
 	const static std::string usage_regex;/**< contains the regex to extract the data */
 	std::string name; /**< contains the function name */
 	std::string file_name; /**< contains the filename in which the function exsists */
+	int line_nr; /**< contains the line number where the function starts */
+	int char_nr; /**< contains the character number where the function starts */
 	unsigned int usage; /**< contains the usage of the function */
 	usage_type su_type; /**< contains the usage type of the function */
 

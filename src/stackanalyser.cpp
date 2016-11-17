@@ -21,7 +21,13 @@
 #include <ostream>  //std::ostream
 #include <algorithm> //std::sort
 
-stack_analyser::stack_analyser(const std::vector<std::string> & input_folders,int call_cost) : call_cost{call_cost}
+const std::string stack_analyser::unresolved_unavailable_message =
+		"no definition found for function: ";
+
+stack_analyser::stack_analyser(const std::vector<std::string> & input_folders,
+		int call_cost) :
+		call_cost
+		{ call_cost }
 {
 	std::vector<std::string> su_files;
 	std::vector<std::string> cgraph_files;
@@ -30,6 +36,7 @@ stack_analyser::stack_analyser(const std::vector<std::string> & input_folders,in
 	get_cgraph_nodes(cgraph_files);
 	get_su_nodes(su_files);
 	create_call_graph();
+	print_indirect_calls();
 }
 
 stack_analyser::stack_analyser(const std::string & input_folders)
@@ -54,16 +61,18 @@ usage_type merge_usage_type(usage_type lhs, usage_type rhs)
 analysis_report stack_analyser::analyse_function(int function,
 		analysis_report report, bool inlined)
 {
-	report.add_function(function, call_cost);
-	for (const auto & edge : su_edges)
+
+	if (!report.add_function(function, call_cost))
 	{
-		if (edge.second == function)
-		{
-			report.stack_usage += su_nodes[edge.first].usage;
-			report.stack_usage_type = merge_usage_type(report.stack_usage_type,
-					su_nodes[edge.first].su_type);
-			break;
-		}
+		print_compiler_warning(std::cout, functions[function].filename, 0, 0,
+				"function " + functions[function].name + " is recursive");
+		return report;
+	}
+	if(functions[function].su != nullptr)
+	{
+		report.stack_usage += functions[function].su->usage;
+		report.stack_usage_type = merge_usage_type(report.stack_usage_type,
+			functions[function].su->su_type);
 	}
 	std::vector<analysis_report> reports;
 	for (const auto & edge : call_edges)
@@ -87,13 +96,17 @@ bool sort_reports(const analysis_report & lhs, const analysis_report & rhs)
 	return lhs.stack_usage > rhs.stack_usage;
 }
 
-void stack_analyser::print_analysis(std::ostream & stream)
+void stack_analyser::print_analysis(std::ostream & stream,
+		bool print_undefined_usage)
 {
 	std::vector<analysis_report> reports;
 	for (unsigned int i = 0; i < functions.size(); i++)
 	{
-		if (functions[i].is_definition())
+		if (functions[i].is_definition()
+				&& (print_undefined_usage
+						|| functions[i].su != nullptr))
 		{
+
 			reports.push_back(analyse_function(i));
 		}
 	}
@@ -126,8 +139,10 @@ void stack_analyser::print_callgraph_dot(std::ostream & stream)
 	for (unsigned int i = 0; i < functions.size(); i++)
 	{
 		auto report = analyse_function(i);
-		stream << int_to_graph_label(i) << " [label=\"" << functions[i].filename
-				<< "\n" << functions[i].name << "\n" << report.stack_usage << "\"];" << std::endl;
+		stream << int_to_graph_label(i) << " [label=\""
+				<< boost::filesystem::path(functions[i].filename).filename().string()
+				<< "\n" << functions[i].name << "\n" << report.stack_usage << "\"];"
+				<< std::endl;
 	}
 	for (unsigned int i = 0; i < call_edges.size(); i++)
 	{
@@ -208,14 +223,16 @@ void stack_analyser::print_su_nodes(std::ostream & stream)
 
 int stack_analyser::get_max_stackusage(const std::string & function_name)
 {
-	for(unsigned int i = 0;i < functions.size();i++)
+	int i = -1;
+	for (unsigned int i = 0; i < functions.size(); i++)
 	{
-		if(functions[i].name.compare(function_name) == 0)
+		if (functions[i].name.compare(function_name) == 0)
 		{
 			analysis_report rep = analyse_function(i);
-			return rep.stack_usage;
+			i = rep.stack_usage;
 		}
 	}
+	return i;
 }
 
 void stack_analyser::get_all_files(std::vector<std::string> & cgraph_files,
@@ -292,7 +309,7 @@ void stack_analyser::resolve_unavailable()
 			bool resolved = false;
 			for (unsigned int j = 0; j < functions.size(); j++)
 			{
-				if (functions[i].name.compare(functions[j].name) == 0
+				if (functions[i].mangled_name.compare(functions[j].mangled_name) == 0
 						&& functions[j].is_definition())
 				{
 					resolved = true;
@@ -322,11 +339,8 @@ void stack_analyser::resolve_stack_usage()
 			if (su_nodes[i].name.compare(functions[j].name) == 0
 					&& functions[j].is_definition())
 			{
-				std::pair<int, int> p;
-				p.first = static_cast<int>(i);
-				p.second = static_cast<int>(j);
+				functions[j].su = &su_nodes[i];
 				resolved = true;
-				su_edges.push_back(p);
 			}
 		}
 		if (!resolved)
@@ -356,7 +370,8 @@ bool stack_analyser::resolve_single_call(int function_nr, int call_nr)
 	bool resolved = false;
 	for (unsigned int i = 0; i < functions.size(); i++)
 	{
-		if (functions[i].mangled_name.compare(
+		std::string f_name= functions[i].mangled_name + "/" + std::to_string(functions[i].symbol_nr);
+		if (f_name.compare(
 				functions[function_nr].calls[call_nr].first) == 0)
 		{
 			resolved = true;
@@ -379,35 +394,66 @@ void stack_analyser::print_unresolved()
 {
 	if (unresolved_unavailabe_cgraph_nodes.size() > 0)
 	{
-		std::cerr << "Warning : " << unresolved_unavailabe_cgraph_nodes.size()
-				<< " unresolved unavailable functions \nno available functions for:\n";
+
 		for (const int & i : unresolved_unavailabe_cgraph_nodes)
 		{
-			std::cerr << functions[i].name << "\n";
+			print_compiler_warning(std::cout, functions[i].filename, 0, 0,
+					unresolved_unavailable_message + functions[i].mangled_name);
 		}
-		std::cerr << "\n";
+		std::cout << "\n";
 	}
 	if (unresolved_su_nodes.size() > 0)
 	{
-		std::cerr << "Warning : " << unresolved_su_nodes.size()
-				<< " unresolved stack usage lines \nno functions for for:\n";
 		for (const int & i : unresolved_su_nodes)
 		{
-			std::cerr << su_nodes[i].name << "\n";
+			print_compiler_warning(std::cout, su_nodes[i].file_name,
+					su_nodes[i].line_nr, su_nodes[i].char_nr,
+					"unresolved stack usage " + su_nodes[i].name);
 		}
-		std::cerr << "\n";
+		std::cout << "\n";
 	}
 	if (unresolved_calls.size() > 0)
 	{
-		std::cerr << "Warning : " << unresolved_calls.size()
-				<< " unresolved function calls \nno available functions for:\n";
 		for (const std::pair<int, int> & i : unresolved_calls)
 		{
-			std::cerr << "caller: " << functions[i.first].name << " Calling: "
-					<< functions[i.first].calls[i.second].first << "\n";
+			print_compiler_warning(std::cout, functions[i.first].filename, 0, 0,
+					"unresolved call caller: " + functions[i.first].name + " Calling: "
+							+ functions[i.first].calls[i.second].first);
 		}
-		std::cerr << "\n";
 	}
 }
 
+void stack_analyser::print_indirect_calls()
+{
+	for(auto & node : functions)
+	{
+		if(node.indirect_calls > 0)
+		{
+			std::string warning  = node.name + " contains " + std::to_string(node.indirect_calls) + " indirect calls";
+			print_compiler_warning(std::cout, node.get_filename(),node.get_linenr(),node.get_charnr(),warning);
+		}
+	}
+}
+
+void stack_analyser::print_compiler_warning(std::ostream & stream,
+		const std::string & file_name, const int & line, const int & character,
+		const std::string & warning)
+{
+	print_compiler_message(stream, file_name, line, character,
+			"warning: " + warning);
+}
+void stack_analyser::print_compiler_error(std::ostream & stream,
+		const std::string & file_name, const int & line, const int & character,
+		const std::string & error)
+{
+	print_compiler_message(stream, file_name, line, character, "error: " + error);
+}
+void stack_analyser::print_compiler_message(std::ostream & stream,
+		const std::string & file_name, const int & line, const int & character,
+		const std::string & message)
+{
+	stream << file_name << ':' << line << ':' << character << ": " << message
+			<< std::endl;
+	stream.flush();
+}
 

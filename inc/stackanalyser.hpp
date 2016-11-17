@@ -47,7 +47,7 @@ public:
    *	\return none
    *
 	 */
-	void print_analysis(std::ostream & stream);
+	void print_analysis(std::ostream & stream, bool print_undefined_usage = false);
 
 	/**
 	 *
@@ -105,7 +105,15 @@ public:
 	 */
 	analysis_report analyse_function(int function,analysis_report report = analysis_report() ,bool inlined = false);
 
+
+	static void print_compiler_warning(std::ostream & stream, const std::string & file_name, const int & line, const int & character, const std::string & warning);
+	static void print_compiler_error(std::ostream & stream, const std::string & file_name, const int & line, const int & character, const std::string & error);
+
+
 private:
+
+	static void print_compiler_message(std::ostream & stream, const std::string & file_name, const int & line, const int & character, const std::string & message);
+
 	/**
 	 *
 	 *	\brief gets all the file_names of all .000i.cgraph and .su files ins specified directories
@@ -190,12 +198,17 @@ private:
 	 */
 	bool resolve_single_call(int function_nr, int call_nr);
 
+
+	void eliminate_edges_to_unavailable();
+
 	/**
 	 *
 	 *	\brief print all unresolved symbols to cerr
    *
 	 */
 	void print_unresolved();
+
+	void print_indirect_calls();
 
 	int call_cost;/**< contains the cost of a call */
 	std::vector<int> unresolved_unavailabe_cgraph_nodes;/**< contains unresolved unavailable nodes */
@@ -206,7 +219,8 @@ private:
 	std::vector<cgraph_node> variables;/**< contains all cgraph_nodes that are a variables */
 	std::vector<su_node> su_nodes;/**< contains all su nodes */
 	std::vector<property_pair<int, int, cgraph_edge_type>> call_edges;/**< contains all call_edges */
-	std::vector<std::pair<int, int>> su_edges;/**< contains all su edges */
+
+	static const std::string unresolved_unavailable_message;
 };
 
 #endif /* STACKANALYSER_HPP_ */

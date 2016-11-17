@@ -13,17 +13,18 @@
 
 //std includes
 #include <iostream> //std::cout
-#include <fstream> // std::ofstream
+#include <fstream>  //std::ofstream
 #include <chrono>
 const std::string program_description =
 		"this app can calculate the maximum stack depth for each function of your embedded programs using the .su files and .000i.cgraph files \n\n"
 
-				"USAGE: stack_analyser_v2 [-h] [-o ARG] -i ARG\n\n"
+				"USAGE: stack_analyser [-h] [-o ARG] [-c ARG] [-d ARG] [-c ARG] -i ARG\n\n"
 
 				"-- Option Descriptions --\n";
 
 int main(int argc, char ** argv)
 {
+	int call_cost = 0;
 	auto start = std::chrono::system_clock::now();
 	std::vector<std::string> input_folders =
 	{ };
@@ -37,9 +38,12 @@ int main(int argc, char ** argv)
 				"specify input directories")("output,o",
 				boost::program_options::value<std::string>(&output),
 				"specify output file (stdout if not specified)")
-				("callgraph,c",
+				("dot-graph,d",
 						boost::program_options::value<std::string>(&call_graph_output),
-						"prints callgraph in dot file");
+						"prints callgraph in dot file")
+				("call-cost,c",
+						boost::program_options::value<int>(&call_cost),
+						"specifies the cost per function call");
 
 		boost::program_options::variables_map vm;
 		try
@@ -62,7 +66,7 @@ int main(int argc, char ** argv)
 		}
 		//-------------------------------------------------------------------------
 
-		stack_analyser * analyser = new stack_analyser(input_folders);
+		stack_analyser * analyser = new stack_analyser(input_folders,call_cost);
 		if(call_graph_output.size() != 0)
 		{
 			if(call_graph_output.length() > 4 &&call_graph_output.substr(call_graph_output.length() - 5).compare(".dot") == 0)
@@ -89,6 +93,7 @@ int main(int argc, char ** argv)
 		std::cout << "last moment exception caught :" << ex.what() << std::endl;
 		return 1;
 	}
+
 	auto end = std::chrono::system_clock::now();
 	auto elapsed =
 	    std::chrono::duration_cast<std::chrono::seconds>(end - start);

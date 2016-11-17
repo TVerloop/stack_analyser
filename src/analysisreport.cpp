@@ -7,6 +7,8 @@
 
 #include "analysisreport.hpp"
 
+#include <algorithm>
+
 analysis_report::analysis_report() : stack_usage{0},
 stack_usage_type{usage_type::undefined},
 is_recursive{false}
@@ -15,11 +17,17 @@ is_recursive{false}
 
 }
 
-void analysis_report::add_function(int function,int call_cost)
+bool analysis_report::add_function(int function,int call_cost)
 {
+	if(std::find(functions.begin(), functions.end(), function) != functions.end())
+	{
+		is_recursive = true;
+		return false;
+	}
 	if(functions.size() != 0)
 		stack_usage += call_cost;
 	functions.push_back(function);
+	return true;
 }
 
 int analysis_report::get_depth()

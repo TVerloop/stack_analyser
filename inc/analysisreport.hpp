@@ -44,10 +44,10 @@ public:
 	 *	call cost to the stack usage
 	 *	\param function the integer which represents a function node.
    *	\param call_cost added to the stack usage.
-   *	\return none
+   *	\return returns false if function already in list (recursive)
    *
 	 */
-	void add_function(int function,int call_cost = 0);
+	bool add_function(int function,int call_cost = 0);
 	/**
 	 *
 	 *	\brief returns the depth of the path with the highest stack usage

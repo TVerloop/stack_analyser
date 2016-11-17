@@ -8,22 +8,52 @@
 //local include
 #include <cgraphnode.hpp>
 
-const std::string cgraph_node::name_regex = "(\\S+) (\\(.+\\)) (\\S+)";
+const std::string cgraph_node::name_regex = "(\\S+)\\/([0-9]+) (\\(.+\\)) (\\S+)";
 const std::string cgraph_node::type_regex = "(\\S+)";
 const std::string cgraph_node::availability_regex = "(\\S+)";
 const std::string cgraph_node::flags_regex = "(\\S+)";
 const std::string cgraph_node::calls_regex =
 		"(\\S+\\/[0-9]+)(?: )?(\\(inlined\\))? (?:\\([0-9]+.[0-9]+ per call\\)?)";
+const std::string cgraph_node::indirect_regex = "Has ([0-9]+) outgoing edges for indirect calls.";
 
 cgraph_node::cgraph_node(const std::vector<std::string> & raw_node_data) : filename{""} ,
 		availability
-		{ availability_type::undefined }, raw_data(raw_node_data)
+		{ availability_type::undefined }, raw_data(raw_node_data),su{ nullptr }
 {
 	parse_name_line(raw_data[0]);
 	for (unsigned int i = 1; i < raw_data.size(); i++)
 	{
 		identify_line(raw_data[i]);
 	}
+}
+
+
+std::string cgraph_node::get_filename()
+{
+	if(su != nullptr)
+		return su->file_name;
+	else
+		return filename;
+
+}
+
+
+int cgraph_node::get_linenr()
+{
+	if(su != nullptr)
+		return su->line_nr;
+	else
+		return 0;
+
+}
+
+int cgraph_node::get_charnr()
+{
+	if(su != nullptr)
+		return su->char_nr;
+	else
+		return 0;
+
 }
 
 std::string cgraph_node::symbol_type_enum_to_string(const symbol_type & st)
@@ -147,6 +177,10 @@ void cgraph_node::identify_line(const std::string & line)
 	{
 		parse_calls_line(line.substr(9));
 	}
+	else if (line.find("  Has ") != std::string::npos)
+	{
+		parse_indirect_line(line);
+	}
 }
 
 void cgraph_node::parse_name_line(const std::string & line)
@@ -159,7 +193,8 @@ void cgraph_node::parse_name_line(const std::string & line)
 	while (regex_search(begin, end, what, expr))
 	{
 		mangled_name = what[1].str();
-		name = what[2].str().substr(1, what[2].str().size() - 2);
+		symbol_nr = atoi(what[2].str().c_str());
+		name = what[3].str().substr(1, what[3].str().size() - 2);
 		begin = what[0].second;
 	}
 }
@@ -221,6 +256,20 @@ void cgraph_node::parse_calls_line(const std::string & line)
 		begin = what[2].second;
 	}
 }
+
+void cgraph_node::parse_indirect_line(const std::string & line)
+{
+	boost::regex expr(indirect_regex);
+
+	std::string::const_iterator begin = line.begin();
+	std::string::const_iterator end = line.end();
+	boost::match_results<std::string::const_iterator> what;
+	if (regex_search(begin, end, what, expr))
+	{
+		indirect_calls = atoi(what[1].str().c_str());
+	}
+}
+
 
 static bool is_funct(const symbol_type & type)
 {
