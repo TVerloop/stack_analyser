@@ -1,7 +1,8 @@
 # stack_analyser
 a tool to analyze the required stack of your program
 
-this app can calculate the maximum stack depth for each function of your embedded programs using the .su files and .000i.cgraph filesto make your project generate these files you need to add -fstack-usage and -fdump-ipa-cgraph to your compiler flags in order to make gcc generate these 
+this tool can calculate the maximum stack depth for each function of your embedded programs using the .su files and .000i.cgraph files. to make your project generate these files you need to add the -fstack-usage and -fdump-ipa-cgraph flags to your compiler flags in order to make gcc generate these. The tool can generate .dot files with your programs call graph.
+it can print a table with stack usage/type inspired by the .su files. it also detects indirect calls and recursion, of wich it notifies the user with compiler warning style messages. this allows most ide's to jump to the file (and sometimes the line) at wich the problem area recides.
 
 BUILD:
 
