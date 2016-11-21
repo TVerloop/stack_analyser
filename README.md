@@ -7,11 +7,11 @@ BUILD:
 
 to build you need the following boost libraries
 
--lboost_filesystem \n
--lboost_graph \n
--lboost_program_options \n
--lboost_regex \n
--lboost_system
+-lboost_filesystem  
+-lboost_graph  
+-lboost_program_options  
+-lboost_regex  
+-lboost_system  
 
 paths and names should be set in the makefile.cfg
 
@@ -24,12 +24,12 @@ stack_analyser [-h] [-o ARG] [-c ARG] [-d ARG] [-c ARG] -i ARG
 -- Option Descriptions --
 
 Options:
-  -h [ --help ]            Print help messages\n
+  -h [ --help ]            Print help messages  
   -i [ --input ] arg       specify input directories from which to take .su and
-                           .000i.cgraph files\n
+                           .000i.cgraph files  
   -s [ --stack-table ] arg specify output file for stack usage table (stdout if
-                           no args are specified)\n
+                           no args are specified)  
   -d [ --dot-graph ] arg   prints callgraph in dot file (stdout if no args are 
-                           specified)\n
-  -c [ --call-cost ] arg   specifies the cost per function call\n
+                           specified)  
+  -c [ --call-cost ] arg   specifies the cost per function call  
 
