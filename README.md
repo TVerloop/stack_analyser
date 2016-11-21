@@ -23,7 +23,7 @@ stack_analyser [-h] [-o ARG] [-c ARG] [-d ARG] [-c ARG] -i ARG
 
 -- Option Descriptions --
 
-Options:
+Options:  
   -h [ --help ]            Print help messages  
   -i [ --input ] arg       specify input directories from which to take .su and
                            .000i.cgraph files  
