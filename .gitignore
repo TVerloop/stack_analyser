@@ -30,3 +30,6 @@
 
 # Documentation
 doc/*
+
+# binary folder
+bin/*
