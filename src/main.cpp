@@ -16,16 +16,15 @@
 #include <fstream>  //std::ofstream
 #include <chrono>
 const std::string program_description =
-		"this app can calculate the maximum stack depth for each function of your embedded"
-		" programs using the .su files and .000i.cgraph files"
-		"to make your project generate these files you need to add -fstack-usage and "
-		"-fdump-ipa-cgraph to your compiler flags in order to make gcc generate these "
-		"\n"
-		"\n"
-		"USAGE: stack_analyser [-h] [-o ARG] [-c ARG] [-d ARG] [-c ARG] -i ARG"
-		"\n"
-		"\n"
-		"-- Option Descriptions --\n";
+		"this tool can calculate the maximum stack depth for each function of your"
+		" embedded programs using the .su files and .000i.cgraph files. to make "
+		"your project generate these files you need to add the -fstack-usage and "
+		"-fdump-ipa-cgraph flags to your compiler flags in order to make gcc "
+		"generate these. The tool can generate .dot files with your programs call "
+		"graph. it can print a table with stack usage/type inspired by the .su "
+		"files. it also detects indirect calls and recursion, of wich it notifies "
+		"the user with compiler warning style messages. this allows most ide's to "
+		"jump to the file (and sometimes the line) at wich the problem area recides.";
 
 
 const char * desc_help = "Print help messages";
@@ -103,8 +102,8 @@ int main(int argc, char ** argv)
 		desc.add_options()
 				("help,h", desc_help)
 				("input,i",bpo::value<std::vector<std::string> >(&input_folders)->required(),desc_input)
-				("stack-table,s",bpo::value<std::string>(&stack_table_output),desc_stack_table)
-				("dot-graph,d",bpo::value<std::string>(&call_graph_output),desc_dot_graph)
+				("stack-table,s",bpo::value<std::string>(&stack_table_output)->implicit_value(""),desc_stack_table)
+				("dot-graph,d",bpo::value<std::string>(&call_graph_output)->implicit_value(""),desc_dot_graph)
 				("call-cost,c",bpo::value<int>(&call_cost),desc_call_cost);
 
 		bpo::variables_map vm;
@@ -137,10 +136,12 @@ int main(int argc, char ** argv)
 		//-------------------------------------------------------------------------
 
 		stack_analyser * analyser = new stack_analyser(input_folders,call_cost);
+
 		if(call_graph_flag)
 			print_dot_graph_table(call_graph_output,analyser);
 		if(stack_table_flag)
 			print_stack_table(call_graph_output,analyser);
+
 		delete analyser;
 		analyser = nullptr;
 

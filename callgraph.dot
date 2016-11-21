@@ -1,3 +1,0 @@
-int main()	32	static_usage
-static uint32_t arm_codebase::io::lpc111x::sys_con<adres, crystal>::set_main_clock(const uint32_t&) [with long unsigned int adres = 1074036736ul; long unsigned int crystal = 0ul; uint32_t = long unsigned int]	16	static_usage
-__Default_Handler	0	static_usage
