@@ -34,3 +34,9 @@ Options:
                            specified)  
   -c [ --call-cost ] arg   specifies the cost per function call  
 
+TODO:
+
+-print callgraph in format colapsable by most text editors (xml,json)  
+-identify root/main/task functions for rtos programs.  
+-identify never called functions.  
+-identify removed functions.  
