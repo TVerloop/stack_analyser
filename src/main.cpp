@@ -24,7 +24,11 @@ const std::string program_description =
 		"graph. it can print a table with stack usage/type inspired by the .su "
 		"files. it also detects indirect calls and recursion, of wich it notifies "
 		"the user with compiler warning style messages. this allows most ide's to "
-		"jump to the file (and sometimes the line) at wich the problem area recides.";
+		"jump to the file (and sometimes the line) at wich the problem area recides.\n\n"
+
+		"USAGE: stack_analyser [-h] [-o ARG] [-s<ARG>] [-d<ARG>] [-c ARG] -i ARG\n\n"
+
+		"-- Option Descriptions --\n\n";
 
 
 const char * desc_help = "Print help messages";
@@ -54,11 +58,11 @@ void print_stack_table(const std::string & output,stack_analyser * analyser)
 		{
 			std::cerr << "could not write file " <<  output_2;
 		}
-		analyser->print_callgraph_dot(stream);
+		analyser->print_analysis(stream);
 		stream.close();
 	}else
 	{
-		analyser->print_callgraph_dot(std::cout);
+		analyser->print_analysis(std::cout);
 	}
 }
 
@@ -77,11 +81,11 @@ void print_dot_graph_table(const std::string & output,stack_analyser * analyser)
 		{
 			std::cerr << "could not write file " <<  output_2;
 		}
-		analyser->print_analysis(stream);
+		analyser->print_callgraph_dot(stream);
 		stream.close();
 	}else
 	{
-		analyser->print_analysis(std::cout);
+		analyser->print_callgraph_dot(std::cout);
 	}
 }
 
@@ -112,6 +116,7 @@ int main(int argc, char ** argv)
 			bpo::store(
 					bpo::parse_command_line(argc, argv, desc), vm);
 
+			bpo::notify(vm);
 			if (vm.count("help"))
 			{
 				std::cout << program_description << std::endl << desc << std::endl;
@@ -126,7 +131,6 @@ int main(int argc, char ** argv)
 				call_graph_flag = true;
 			}
 
-			bpo::notify(vm);
 		} catch (bpo::error& e)
 		{
 			std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
@@ -140,7 +144,8 @@ int main(int argc, char ** argv)
 		if(call_graph_flag)
 			print_dot_graph_table(call_graph_output,analyser);
 		if(stack_table_flag)
-			print_stack_table(call_graph_output,analyser);
+			print_stack_table(stack_table_output,analyser);
+
 
 		delete analyser;
 		analyser = nullptr;

@@ -110,6 +110,9 @@ public:
 	std::vector<std::string> raw_data; /**< contains the raw data of the symbol */
 	su_node * su;
 
+
+	std::string clone_off;
+	bool removed_body;
 	std::string get_filename();
 
 	int get_linenr();
@@ -178,6 +181,7 @@ public:
 	const static std::string flags_regex;/**< contains the regex to extract the flags */
 	const static std::string calls_regex;/**< contains the regex to extract the calls */
 	const static std::string indirect_regex;/**< contains the regex to extract the inderect calls count */
+	const static std::string clone_regex;
 
 private:
 
@@ -236,6 +240,10 @@ private:
 	void parse_calls_line(const std::string & line);
 
 	void parse_indirect_line(const std::string & line);
+
+	void parse_clone_of(const std::string & line);
+
+	void parse_removed_by(const std::string & line);
 
 };
 

@@ -10,7 +10,8 @@ enum class cgraph_edge_type
 {
 	call, /**< edge type is a call */
 	inlined_call,  /**< edge type is an inlined call */
-	definition_link  /**< edge type is an definition */
+	definition_link,  /**< edge type is a definition */
+	clone_link  /**< edge type is a clone */
 };
 
 //std includes
@@ -38,5 +39,4 @@ template<class __T1, class __T2, class __T3>
 struct property_pair: public std::pair<__T1, __T2> {
 __T3 property; /**< contains the edge type */
 };
-
 #endif /* PROPERTYPAIR_HPP_ */

@@ -20,7 +20,8 @@ furthermore you require gcc toolchain to compile.
 
 USAGE: 
 
-stack_analyser [-h] [-o ARG] [-c ARG] [-d ARG] [-c ARG] -i ARG
+stack_analyser [-h] [-s[ARG]] [-c ARG] [-d[ARG]] [-c ARG] -i ARG
+
 
 -- Option Descriptions --
 
@@ -33,6 +34,31 @@ Options:
   -d [ --dot-graph ] arg   prints callgraph in dot file (stdout if no args are 
                            specified)  
   -c [ --call-cost ] arg   specifies the cost per function call  
+
+EXAMPLES:
+
+./stack_analyser -i <path to build dir>
+this will output only warnings about recursion, indirect calls, and missing log files.
+
+./stack_analyser -s -i <path to build dir>
+this will output warnings about recursion, indirect calls, and missing log files. And
+will print a sorted table with functions and their respective stack cost in the stdout
+
+./stack_analyser -sstack-table.txt -i <path to build dir>
+this will output warnings about recursion, indirect calls, and missing log files. And
+will print a sorted table with functions and their respective stack cost in the file stack-table.txt
+
+./stack_analyser -sstack-table.txt -dcallgraph.dot -i <path to build dir>
+this will output warnings about recursion, indirect calls, and missing log files. And
+will print a sorted table with functions and their respective stack cost in the file stack-table.txt
+and print an dot callgraph in callgraph.dot file which can be compiled to another format using a dot
+comiler
+
+./stack_analyser -sstack-table.txt -dcallgraph.dot -c 4 -i <path to build dir>
+this will output warnings about recursion, indirect calls, and missing log files. And
+will print a sorted table with functions and their respective stack cost in the file stack-table.txt
+and print an dot callgraph in callgraph.dot file and for every function call it will add an extra 4 bytes to
+the stack-cost.
 
 TODO:
 

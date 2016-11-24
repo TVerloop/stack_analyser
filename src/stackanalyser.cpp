@@ -24,6 +24,9 @@
 const std::string stack_analyser::unresolved_unavailable_message =
 		"no definition found for function: ";
 
+const std::string stack_analyser::unresolved_clone_message =
+		"no source found for cloned function: ";
+
 stack_analyser::stack_analyser(const std::vector<std::string> & input_folders,
 		int call_cost) :
 		call_cost
@@ -61,18 +64,20 @@ usage_type merge_usage_type(usage_type lhs, usage_type rhs)
 analysis_report stack_analyser::analyse_function(int function,
 		analysis_report report, bool inlined)
 {
-
 	if (!report.add_function(function, call_cost))
 	{
 		print_compiler_warning(std::cout, functions[function].filename, 0, 0,
 				"function " + functions[function].name + " is recursive");
 		return report;
 	}
-	if(functions[function].su != nullptr)
+	if (functions[function].su != nullptr)
 	{
-		report.stack_usage += functions[function].su->usage;
+		if (!inlined)
+		{
+			report.stack_usage += functions[function].su->usage;
+		}
 		report.stack_usage_type = merge_usage_type(report.stack_usage_type,
-			functions[function].su->su_type);
+				functions[function].su->su_type);
 	}
 	std::vector<analysis_report> reports;
 	for (const auto & edge : call_edges)
@@ -80,7 +85,8 @@ analysis_report stack_analyser::analyse_function(int function,
 		if (edge.first == function)
 		{
 			reports.push_back(
-					analyse_function(int(edge.second), report, bool(edge.property)));
+					analyse_function(int(edge.second), report,
+							edge.property == cgraph_edge_type::inlined_call));
 		}
 	}
 	for (const analysis_report & r : reports)
@@ -103,8 +109,7 @@ void stack_analyser::print_analysis(std::ostream & stream,
 	for (unsigned int i = 0; i < functions.size(); i++)
 	{
 		if (functions[i].is_definition()
-				&& (print_undefined_usage
-						|| functions[i].su != nullptr))
+				&& (print_undefined_usage || functions[i].su != nullptr))
 		{
 
 			reports.push_back(analyse_function(i));
@@ -115,7 +120,11 @@ void stack_analyser::print_analysis(std::ostream & stream,
 	for (const auto & report : reports)
 	{
 		stream << functions[report.functions[0]].name << "\t" << report.stack_usage
-				<< "\t" << su_node::usage_type_enum_to_string(report.stack_usage_type)
+				<< "\t"
+				<< ((functions[report.functions[0]].su != nullptr) ?
+						functions[report.functions[0]].su->usage : 0) << "\t"
+				<< report.functions.size() << "\t"
+				<< su_node::usage_type_enum_to_string(report.stack_usage_type)
 				<< std::endl;
 
 	}
@@ -138,21 +147,23 @@ void stack_analyser::print_callgraph_dot(std::ostream & stream)
 	stream << "graph callgraph {\n";
 	for (unsigned int i = 0; i < functions.size(); i++)
 	{
+		if (functions[i].removed_body)
+			continue;
 		auto report = analyse_function(i);
 		stream << int_to_graph_label(i) << " [label=\""
 				<< boost::filesystem::path(functions[i].filename).filename().string()
-				<< "\n" << functions[i].name << "\n" << report.stack_usage << "\"];"
+				<< "\\n" << functions[i].name << "\\n" << report.stack_usage << "\"];"
 				<< std::endl;
 	}
 	for (unsigned int i = 0; i < call_edges.size(); i++)
 	{
+		if (call_edges[i].property == cgraph_edge_type::clone_link
+				|| call_edges[i].property == cgraph_edge_type::definition_link)
+			continue;
 		stream << int_to_graph_label(call_edges[i].first) << " -- "
 				<< int_to_graph_label(call_edges[i].second);
 		switch (call_edges[i].property)
 		{
-		case cgraph_edge_type::definition_link:
-			stream << " [style=dotted][label=\"D\"];";
-			break;
 		case cgraph_edge_type::inlined_call:
 			stream << " [style=dotted][label=\"I\"];";
 			break;
@@ -206,19 +217,19 @@ void stack_analyser::print_symbols_raw_data(std::ostream & stream)
 	for (const cgraph_node & node : cgraph_nodes)
 	{
 		for (const std::string & str : node.raw_data)
-			std::cout << str << std::endl;
+			stream << str << std::endl;
 	}
-	std::cout << std::endl;
+	stream << std::endl;
 }
 
 void stack_analyser::print_su_nodes(std::ostream & stream)
 {
 	for (const su_node & node : su_nodes)
 	{
-		std::cout << node.file_name << " " << node.name << " " << node.usage << " "
+		stream << node.file_name << " " << node.name << " " << node.usage << " "
 				<< su_node::usage_type_enum_to_string(node.su_type) << std::endl;
 	}
-	std::cout << std::endl;
+	stream << std::endl;
 }
 
 int stack_analyser::get_max_stackusage(const std::string & function_name)
@@ -296,15 +307,17 @@ void stack_analyser::create_call_graph()
 	resolve_unavailable();
 	resolve_stack_usage();
 	resolve_calls();
+	resolve_clones();
+	eliminate_useless_edges();
 	print_unresolved();
-
 }
 
 void stack_analyser::resolve_unavailable()
 {
 	for (unsigned int i = 0; i < functions.size(); i++)
 	{
-		if (functions[i].availability == availability_type::not_available)
+		if (functions[i].availability == availability_type::not_available
+				&& !functions[i].removed_body)
 		{
 			bool resolved = false;
 			for (unsigned int j = 0; j < functions.size(); j++)
@@ -370,9 +383,9 @@ bool stack_analyser::resolve_single_call(int function_nr, int call_nr)
 	bool resolved = false;
 	for (unsigned int i = 0; i < functions.size(); i++)
 	{
-		std::string f_name= functions[i].mangled_name + "/" + std::to_string(functions[i].symbol_nr);
-		if (f_name.compare(
-				functions[function_nr].calls[call_nr].first) == 0)
+		std::string f_name = functions[i].mangled_name + "/"
+				+ std::to_string(functions[i].symbol_nr);
+		if (f_name.compare(functions[function_nr].calls[call_nr].first) == 0)
 		{
 			resolved = true;
 			property_pair<int, int, cgraph_edge_type> p;
@@ -388,6 +401,33 @@ bool stack_analyser::resolve_single_call(int function_nr, int call_nr)
 		}
 	}
 	return resolved;
+}
+
+void stack_analyser::resolve_clones()
+{
+	for (unsigned int i = 0; i < functions.size(); i++)
+	{
+		if (functions[i].clone_off.length() != 0)
+		{
+			bool resolved = false;
+			for (unsigned int j = 0; j < functions.size(); j++)
+			{
+				if (functions[i].clone_off.compare(functions[j].mangled_name) == 0
+						&& functions[j].is_definition())
+				{
+					resolved = true;
+					property_pair<int, int, cgraph_edge_type> p;
+					p.first = static_cast<int>(i);
+					p.second = static_cast<int>(j);
+					p.property = cgraph_edge_type::clone_link;
+					call_edges.push_back(p);
+					break;
+				}
+			}
+			if (!resolved)
+				unresolved_clones.push_back(static_cast<int>(i));
+		}
+	}
 }
 
 void stack_analyser::print_unresolved()
@@ -421,18 +461,72 @@ void stack_analyser::print_unresolved()
 							+ functions[i.first].calls[i.second].first);
 		}
 	}
+	if (unresolved_clones.size() > 0)
+	{
+		for (const int & i : unresolved_su_nodes)
+		{
+			print_compiler_warning(std::cout, functions[i].filename, 0, 0,
+					unresolved_clone_message + functions[i].mangled_name);
+		}
+		std::cout << "\n";
+	}
 }
 
 void stack_analyser::print_indirect_calls()
 {
-	for(auto & node : functions)
+	for (auto & node : functions)
 	{
-		if(node.indirect_calls > 0)
+		if (node.indirect_calls > 0)
 		{
-			std::string warning  = node.name + " contains " + std::to_string(node.indirect_calls) + " indirect calls";
-			print_compiler_warning(std::cout, node.get_filename(),node.get_linenr(),node.get_charnr(),warning);
+			std::string warning = node.name + " contains "
+					+ std::to_string(node.indirect_calls) + " indirect calls";
+			print_compiler_warning(std::cout, node.get_filename(), node.get_linenr(),
+					node.get_charnr(), warning);
 		}
 	}
+}
+
+bool compare_edges(const property_pair<int, int, cgraph_edge_type> & lhs,
+		const property_pair<int, int, cgraph_edge_type> & rhs)
+{
+	return (lhs.first == rhs.first && lhs.second == rhs.second
+			&& lhs.property == rhs.property);
+}
+
+bool sort_edges(const property_pair<int, int, cgraph_edge_type> & lhs,
+		const property_pair<int, int, cgraph_edge_type> & rhs)
+{
+	return (lhs.first < rhs.first
+			|| (lhs.first == rhs.first && lhs.second < rhs.second)
+			|| (lhs.first == rhs.first && lhs.second == rhs.second
+			&& lhs.property < rhs.property));
+
+}
+
+void stack_analyser::eliminate_useless_edges()
+{
+	std::vector<int> eliminated_edges;
+	std::vector<int> eliminated_nodes;
+	for (unsigned int i = 0; i < call_edges.size(); i++)
+	{
+		if (call_edges[i].property == cgraph_edge_type::clone_link
+				|| call_edges[i].property == cgraph_edge_type::definition_link)
+		{
+			for (unsigned int j = 0; j < call_edges.size(); j++)
+			{
+				if (call_edges[j].second == call_edges[i].first)
+				{
+					call_edges[j].second = call_edges[i].second;
+
+					eliminated_edges.push_back(i);
+					eliminated_nodes.push_back(call_edges[i].first);
+				}
+			}
+		}
+	}
+	std::sort(call_edges.begin(),call_edges.end(),sort_edges);
+	call_edges.erase(unique(call_edges.begin(), call_edges.end(), compare_edges),
+			call_edges.end());
 }
 
 void stack_analyser::print_compiler_warning(std::ostream & stream,

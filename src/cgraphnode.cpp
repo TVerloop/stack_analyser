@@ -8,17 +8,24 @@
 //local include
 #include <cgraphnode.hpp>
 
-const std::string cgraph_node::name_regex = "(\\S+)\\/([0-9]+) (\\(.+\\)) (\\S+)";
+const std::string cgraph_node::name_regex =
+		"(\\S+)\\/([0-9]+) (\\(.+\\)) (\\S+)";
 const std::string cgraph_node::type_regex = "(\\S+)";
 const std::string cgraph_node::availability_regex = "(\\S+)";
 const std::string cgraph_node::flags_regex = "(\\S+)";
 const std::string cgraph_node::calls_regex =
 		"(\\S+\\/[0-9]+)(?: )?(\\(inlined\\))? (?:\\([0-9]+.[0-9]+ per call\\)?)";
-const std::string cgraph_node::indirect_regex = "Has ([0-9]+) outgoing edges for indirect calls.";
+const std::string cgraph_node::indirect_regex =
+		"Has ([0-9]+) outgoing edges for indirect calls.";
+const std::string cgraph_node::clone_regex = "Clone of (\\S+)\\/[0-9]+";
 
-cgraph_node::cgraph_node(const std::vector<std::string> & raw_node_data) : filename{""} ,
-		availability
-		{ availability_type::undefined }, raw_data(raw_node_data),su{ nullptr }
+cgraph_node::cgraph_node(const std::vector<std::string> & raw_node_data) :
+		filename
+		{ "" }, availability
+		{ availability_type::undefined }, raw_data(raw_node_data), su
+		{ nullptr }, clone_off
+		{ "" }, removed_body
+		{ false }
 {
 	parse_name_line(raw_data[0]);
 	for (unsigned int i = 1; i < raw_data.size(); i++)
@@ -27,20 +34,18 @@ cgraph_node::cgraph_node(const std::vector<std::string> & raw_node_data) : filen
 	}
 }
 
-
 std::string cgraph_node::get_filename()
 {
-	if(su != nullptr)
+	if (su != nullptr)
 		return su->file_name;
 	else
 		return filename;
 
 }
 
-
 int cgraph_node::get_linenr()
 {
-	if(su != nullptr)
+	if (su != nullptr)
 		return su->line_nr;
 	else
 		return 0;
@@ -49,7 +54,7 @@ int cgraph_node::get_linenr()
 
 int cgraph_node::get_charnr()
 {
-	if(su != nullptr)
+	if (su != nullptr)
 		return su->char_nr;
 	else
 		return 0;
@@ -181,6 +186,14 @@ void cgraph_node::identify_line(const std::string & line)
 	{
 		parse_indirect_line(line);
 	}
+	else if (line.find("  Clone of ") != std::string::npos)
+	{
+		parse_clone_of(line);
+	}
+	else if (line.find("  Body removed by ") != std::string::npos)
+	{
+		parse_removed_by(line);
+	}
 }
 
 void cgraph_node::parse_name_line(const std::string & line)
@@ -253,7 +266,7 @@ void cgraph_node::parse_calls_line(const std::string & line)
 		calls.push_back(
 				std::pair<std::string, bool>(what[1].str(),
 						what[2].str().length() > 0));
-		begin = what[2].second;
+		begin = what[0].second;
 	}
 }
 
@@ -270,6 +283,23 @@ void cgraph_node::parse_indirect_line(const std::string & line)
 	}
 }
 
+void cgraph_node::parse_clone_of(const std::string & line)
+{
+	boost::regex expr(clone_regex);
+
+	std::string::const_iterator begin = line.begin();
+	std::string::const_iterator end = line.end();
+	boost::match_results<std::string::const_iterator> what;
+	if (regex_search(begin, end, what, expr))
+	{
+		clone_off = what[1].str();
+	}
+}
+
+void cgraph_node::parse_removed_by(const std::string & line)
+{
+	removed_body = true;
+}
 
 static bool is_funct(const symbol_type & type)
 {

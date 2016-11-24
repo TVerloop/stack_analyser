@@ -24,7 +24,6 @@ bool analysis_report::add_function(int function,int call_cost)
 		is_recursive = true;
 		return false;
 	}
-	if(functions.size() != 0)
 		stack_usage += call_cost;
 	functions.push_back(function);
 	return true;

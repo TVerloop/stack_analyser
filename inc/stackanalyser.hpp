@@ -110,7 +110,7 @@ public:
 	static void print_compiler_error(std::ostream & stream, const std::string & file_name, const int & line, const int & character, const std::string & error);
 
 
-private:
+//private:
 
 	static void print_compiler_message(std::ostream & stream, const std::string & file_name, const int & line, const int & character, const std::string & message);
 
@@ -198,8 +198,11 @@ private:
 	 */
 	bool resolve_single_call(int function_nr, int call_nr);
 
+	void resolve_clones();
 
-	void eliminate_edges_to_unavailable();
+	void eliminate_useless_edges();
+
+
 
 	/**
 	 *
@@ -213,6 +216,7 @@ private:
 	int call_cost;/**< contains the cost of a call */
 	std::vector<int> unresolved_unavailabe_cgraph_nodes;/**< contains unresolved unavailable nodes */
 	std::vector<int> unresolved_su_nodes;/**< contains unresolved su nodes */
+	std::vector<int> unresolved_clones;/**< contains unresolved su nodes */
 	std::vector<std::pair<int, int>> unresolved_calls;/**< contains unresolved calls */
 	std::vector<cgraph_node> cgraph_nodes;/**< contains all cgraph_nodes */
 	std::vector<cgraph_node> functions;/**< contains all cgraph_nodes that are a function */
@@ -221,6 +225,7 @@ private:
 	std::vector<property_pair<int, int, cgraph_edge_type>> call_edges;/**< contains all call_edges */
 
 	static const std::string unresolved_unavailable_message;
+	static const std::string unresolved_clone_message;
 };
 
 #endif /* STACKANALYSER_HPP_ */
