@@ -19,7 +19,7 @@ furthermore you require gcc toolchain to compile.
 
 USAGE: 
 
-stack_analyser [-h] [-s[ARG]] [-c ARG] [-d[ARG]] [-c ARG] -i ARG
+stack_analyser [-h] [-s[ARG]] [-d[ARG]] [-c ARG] -i ARG
 
 
 -- Option Descriptions --
