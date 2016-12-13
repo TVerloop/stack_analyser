@@ -16,10 +16,13 @@
 //boost includes
 #include <boost/filesystem.hpp>
 
+#include <iomanip>
+
 //std includes
 #include <iostream> //std::cout
 #include <ostream>  //std::ostream
 #include <algorithm> //std::sort
+
 
 const std::string stack_analyser::unresolved_unavailable_message =
 		"no definition found for function: ";
@@ -117,14 +120,20 @@ void stack_analyser::print_analysis(std::ostream & stream,
 	}
 
 	std::sort(reports.begin(), reports.end(), &sort_reports);
+	stream << std::setw(28) << std::left << "Name:" <<
+			std::setw(6) << std::left << "Usage" <<
+			std::setw(6) << std::left << "Frame" <<
+			std::setw(6) << std::left << "Depth" <<
+			std::setw(6) << std::left << "Type" << std::endl;
 	for (const auto & report : reports)
 	{
-		stream << functions[report.functions[0]].name << "\t" << report.stack_usage
-				<< "\t"
-				<< ((functions[report.functions[0]].su != nullptr) ?
-						functions[report.functions[0]].su->usage : 0) << "\t"
-				<< report.functions.size() << "\t"
-				<< su_node::usage_type_enum_to_string(report.stack_usage_type)
+		stream <<
+				std::setw(28) << std::left << functions[report.functions[0]].name <<
+				std::setw(6) << report.stack_usage <<
+				std::setw(6) << ((functions[report.functions[0]].su != nullptr) ?
+						functions[report.functions[0]].su->usage : 0) <<
+				std::setw(6) << report.functions.size() <<
+				std::setw(6) << std::left << su_node::usage_type_enum_to_string(report.stack_usage_type)
 				<< std::endl;
 
 	}
@@ -147,7 +156,7 @@ void stack_analyser::print_callgraph_dot(std::ostream & stream)
 	stream << "graph callgraph {\n";
 	for (unsigned int i = 0; i < functions.size(); i++)
 	{
-		if (functions[i].removed_body)
+		if (functions[i].removed_body||!functions[i].is_definition())
 			continue;
 		auto report = analyse_function(i);
 		stream << int_to_graph_label(i) << " [label=\""

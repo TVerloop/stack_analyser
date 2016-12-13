@@ -21,7 +21,7 @@ const std::string cgraph_node::clone_regex = "Clone of (\\S+)\\/[0-9]+";
 
 cgraph_node::cgraph_node(const std::vector<std::string> & raw_node_data) :
 		filename
-		{ "" }, availability
+		{ "" },indirect_calls{0}, availability
 		{ availability_type::undefined }, raw_data(raw_node_data), su
 		{ nullptr }, clone_off
 		{ "" }, removed_body
@@ -298,6 +298,7 @@ void cgraph_node::parse_clone_of(const std::string & line)
 
 void cgraph_node::parse_removed_by(const std::string & line)
 {
+	(void)line;
 	removed_body = true;
 }
 
