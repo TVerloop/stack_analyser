@@ -58,10 +58,3 @@ this will output warnings about recursion, indirect calls, and missing log files
 will print a sorted table with functions and their respective stack cost in the file stack-table.txt
 and print an dot callgraph in callgraph.dot file and for every function call it will add an extra 4 bytes to
 the stack-cost.
-
-TODO:
-
--print callgraph in format colapsable by most text editors (xml,json)  
--identify root/main/task functions for rtos programs.  
--identify never called functions.  
--identify removed functions.  
