@@ -1,7 +1,9 @@
 FROM debian:8
 
+ENV DEVIAN_FRONTEND noninteractive
+
 RUN apt-get update \
     && apt-get upgrade \
-    && apt-get install \
+    && apt-get install -yq \
                build-essential \
                boost
