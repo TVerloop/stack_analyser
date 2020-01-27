@@ -472,7 +472,7 @@ void stack_analyser::print_unresolved()
 	}
 	if (unresolved_clones.size() > 0)
 	{
-		for (const int & i : unresolved_su_nodes)
+		for (const int & i : unresolved_clones)
 		{
 			print_compiler_warning(std::cout, functions[i].filename, 0, 0,
 					unresolved_clone_message + functions[i].mangled_name);
